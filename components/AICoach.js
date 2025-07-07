@@ -109,6 +109,7 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
     if (selectedIssue?.id === issue.id) return // Already selected
 
     setSelectedIssue(issue)
+    setConversation([]) // Clear conversation when switching issues
     setIsLoading(true)
     setError(null)
 
@@ -135,7 +136,7 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
 
   // Handle student response
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !selectedIssue) return
+    if (!inputMessage.trim()) return
 
     const newConversation = [
       ...conversation,
@@ -150,22 +151,39 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
     setIsLoading(true)
 
     try {
-      // Convert conversation to Claude format
-      const claudeHistory = newConversation.map(msg => ({
-        role: msg.type === 'student' ? 'user' : 'assistant',
-        content: msg.text
-      }))
+      if (selectedIssue) {
+        // Issue-specific conversation
+        const claudeHistory = newConversation.map(msg => ({
+          role: msg.type === 'student' ? 'user' : 'assistant',
+          content: msg.text
+        }))
 
-      const response = await claudeAPI.continueSocraticDialogue(
-        claudeHistory,
-        inputMessage
-      )
+        const response = await claudeAPI.continueSocraticDialogue(
+          claudeHistory,
+          inputMessage
+        )
 
-      setConversation(prev => [...prev, {
-        type: 'teacher',
-        text: response.response,
-        timestamp: new Date()
-      }])
+        setConversation(prev => [...prev, {
+          type: 'teacher',
+          text: response.response,
+          timestamp: new Date()
+        }])
+      } else {
+        // General conversation
+        const response = await claudeAPI.generalQuestion({
+          question: inputMessage,
+          writingData,
+          currentStage,
+          hasQualityFeedback: !!qualityFeedback,
+          conversationHistory: conversation
+        })
+
+        setConversation(prev => [...prev, {
+          type: 'teacher',
+          text: response.response,
+          timestamp: new Date()
+        }])
+      }
     } catch (err) {
       setError('Failed to continue conversation. Please try again.')
       console.error('Conversation error:', err)
@@ -247,39 +265,41 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
           </div>
         )}
 
-        {selectedIssue && (
-          <div className={styles.conversationSection}>
-            <h4 className={styles.sectionTitle}>Exploring: {selectedIssue.title}</h4>
-            
-            <div className={styles.messagesArea}>
-              {conversation.map((message, index) => (
-                <div 
-                  key={index}
-                  className={`${styles.message} ${message.type === 'student' ? styles.studentMessage : styles.teacherMessage}`}
-                >
-                  {message.text}
-                </div>
-              ))}
-              {isLoading && (
-                <div className={styles.loadingMessage}>
-                  Teacher is thinking...
-                </div>
-              )}
-            </div>
-
-            <div className={styles.inputArea}>
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Respond to your teacher..."
-                className={styles.messageInput}
-                disabled={isLoading}
-              />
-            </div>
+        <div className={styles.conversationSection}>          
+          <div className={styles.messagesArea}>
+            {conversation.map((message, index) => (
+              <div 
+                key={index}
+                className={`${styles.message} ${message.type === 'student' ? styles.studentMessage : styles.teacherMessage}`}
+              >
+                {message.text}
+              </div>
+            ))}
+            {isLoading && (
+              <div className={styles.loadingMessage}>
+                Reviewing...
+              </div>
+            )}
           </div>
-        )}
+
+          <div className={styles.inputArea}>
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder={
+                selectedIssue 
+                  ? "Respond to your teacher..."
+                  : qualityFeedback
+                    ? "Feel free to ask any questions..."
+                    : "Ask me a question if you're feeling stuck..."
+              }
+              className={styles.messageInput}
+              disabled={isLoading}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

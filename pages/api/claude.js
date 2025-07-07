@@ -113,6 +113,15 @@ Key principles:
 
 const RESOLUTION_CHECK_SYSTEM_PROMPT = `You are an expert writing teacher checking if a specific writing issue has been resolved. Be precise and encouraging when issues are fixed, constructive when they're not.`
 
+const GENERAL_HELP_SYSTEM_PROMPT = `You are a supportive writing teacher helping students with their argumentative writing. You provide guidance that's appropriate for high school and college level writing.
+
+Key principles:
+- Be encouraging and supportive
+- If they're stuck, help them brainstorm or think through their ideas
+- Keep responses concise (2-3 sentences max)
+- Relate your advice to their current writing stage and content
+- Use Socratic questioning when appropriate to guide discovery`
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -202,6 +211,31 @@ Please ask a thoughtful question to help the student examine this issue more dee
         const resolutionResult = parseResolutionResponse(resolutionResponse.content[0].text)
 
         return res.status(200).json(resolutionResult)
+
+      case 'generalQuestion':
+        const { question, writingData: wData, currentStage: stage, hasQualityFeedback, conversationHistory: history } = req.body
+
+        const generalPrompt = createGeneralQuestionPrompt(question, wData, stage, hasQualityFeedback)
+
+        const generalResponse = await anthropic.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 200,
+          system: GENERAL_HELP_SYSTEM_PROMPT,
+          messages: [
+            ...(history || []).map(msg => ({
+              role: msg.type === 'student' ? 'user' : 'assistant',
+              content: msg.text
+            })),
+            {
+              role: 'user',
+              content: generalPrompt
+            }
+          ]
+        })
+
+        return res.status(200).json({
+          response: generalResponse.content[0].text
+        })
 
       default:
         return res.status(400).json({ error: 'Invalid action' })
@@ -345,4 +379,43 @@ function parseResolutionResponse(text) {
     status: 'not_resolved',
     feedback: feedback || 'This issue still needs attention.'
   }
+}
+
+// Helper function to create general question prompts
+function createGeneralQuestionPrompt(question, writingData, currentStage, hasQualityFeedback) {
+  const stageNames = ['Argument Construction', 'Claim Development', 'Evidence Integration', 'Argument Review']
+  const stageName = stageNames[currentStage] || 'Unknown Stage'
+
+  let context = `Student is in the ${stageName} stage.\n\n`
+
+  // Add relevant context based on stage
+  switch (currentStage) {
+    case 0:
+      context += writingData.thesis 
+        ? `Current thesis: "${writingData.thesis}"`
+        : 'No thesis written yet.'
+      break
+    case 1:
+      context += `Thesis: "${writingData.thesis}"\n`
+      context += writingData.claims.length > 0
+        ? `Claims: ${writingData.claims.map(c => c.text).filter(t => t).join(', ')}`
+        : 'No claims added yet.'
+      break
+    case 2:
+      context += `Working on adding evidence for their claims.`
+      break
+    case 3:
+      context += `Reviewing their complete argument outline.`
+      break
+  }
+
+  if (hasQualityFeedback) {
+    context += '\n\nThe student received positive feedback on their work.'
+  }
+
+  return `${context}
+
+Student's question: "${question}"
+
+Provide helpful guidance while encouraging them to think critically about their argument.`
 }

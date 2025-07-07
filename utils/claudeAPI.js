@@ -106,5 +106,34 @@ export const claudeAPI = {
       console.error('Claude API error:', error)
       throw error
     }
+  },
+
+  // Handle general questions when no specific issue is selected
+  async generalQuestion({ question, writingData, currentStage, hasQualityFeedback, conversationHistory }) {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'generalQuestion',
+          question,
+          writingData,
+          currentStage,
+          hasQualityFeedback,
+          conversationHistory
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to process general question')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Claude API error:', error)
+      throw error
+    }
   }
 }
