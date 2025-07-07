@@ -1,0 +1,53 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: 'Times New Roman', Times, serif;
+  background-color: #fcfcfc;
+  color: black;
+  line-height: 1.6;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 3rem;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 1rem 0;
+  margin-top: 2rem;
+}
+
+.footer-left {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-button {
+  background: none;
+  border: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: underline;
+  color: black;
+}
+
+.footer-button:hover {
+  text-decoration: none;
+}
+
+.footer-button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  text-decoration: none;
+}

@@ -1,0 +1,46 @@
+.progressContainer {
+  padding: 1rem 0;
+  background-color: transparent;
+}
+
+.progressTitle {
+  font-size: 1rem;
+  text-align: left;
+  color: #555;
+  font-weight: normal;
+  margin-bottom: 1rem;
+}
+
+.progressBar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.progressStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stageName {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.85rem;
+  text-align: center;
+  color: black;
+  white-space: normal;
+  max-width: 80px;
+  padding-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.progressStage.current .stageName {
+  color: black;
+  border-bottom: 2px solid #333;
+}
+
+.progressStage.completed .stageName {
+  color: #ccc;
+}

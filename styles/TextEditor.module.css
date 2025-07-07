@@ -1,0 +1,293 @@
+.textEditorContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Times New Roman', Times, serif;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.editorHeader {
+  background-color: transparent;
+}
+
+.stageTitle {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  font-weight: normal;
+  color: black;
+  margin: 0;
+}
+
+.stageContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.textArea {
+  width: 100%;
+  flex: 1;
+  border: none;
+  padding: 1rem;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  resize: none;
+  outline: none;
+  background-color: white;
+  color: black;
+  min-height: 300px;
+}
+
+.textArea:focus {
+  outline: none;
+}
+
+.textArea::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.stageFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem 0;
+  background-color: transparent;
+}
+
+.stageFooterWithCount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  background-color: transparent;
+}
+
+.wordCount {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.nextButton {
+  background: none;
+  border: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: underline;
+  color: black;
+}
+
+.nextButton:hover:not(:disabled) {
+  text-decoration: none;
+}
+
+.nextButton:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.thesisDisplay {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+}
+
+.claimsSection {
+  flex: 1;
+  overflow-y: auto;
+  max-height: none;
+}
+
+.claimItem {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+}
+
+.claimInput {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 1px solid black;
+  background-color: transparent;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.claimInput:focus {
+  outline: none;
+  border-bottom: 2px solid black;
+}
+
+.subclaimInput {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.subclaimInput:focus {
+  outline: none;
+  border-bottom: 2px solid #333;
+}
+
+.addButton {
+  background: none;
+  border: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.addButton:hover {
+  text-decoration: none;
+  color: black;
+}
+
+.inputWithDelete {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.inputWithDelete input {
+  flex: 1;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  color: #999;
+}
+
+.deleteButton:hover {
+  text-decoration: none;
+  color: #666;
+}
+
+.claimWithEvidence {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-left: 2px solid #ddd;
+}
+
+.claimText {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.subclaimText {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  margin: 1rem 0 0.5rem 1rem;
+  color: #333;
+}
+
+.subclaimWithEvidence {
+  margin-left: 1rem;
+  margin-top: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid #eee;
+}
+
+.evidenceInput {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  background-color: transparent;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.evidenceInput:focus {
+  outline: none;
+  border-bottom: 2px solid #333;
+  color: black;
+}
+
+.outlineEditor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.outlineTitle {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.outlineTextArea {
+  flex: 1;
+  width: 100%;
+  border: none;
+  padding: 1rem;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  background-color: white;
+  color: black;
+  white-space: pre-wrap;
+  min-height: 300px;
+}
+
+.outlineTextArea:focus {
+  outline: none;
+}
+
+.outlineTextArea::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.finalStage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.finalStage h3 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.finalStage p {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  color: #666;
+  max-width: 400px;
+}

@@ -1,0 +1,175 @@
+.aiCoachContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.aiCoachHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  background-color: transparent;
+  border-bottom: 1px solid black;
+}
+
+.aiCoachTitle {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  color: black;
+  margin: 0;
+  font-weight: normal;
+}
+
+.feedbackButton {
+  background: none;
+  border: none;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  color: black;
+}
+
+.feedbackButton:hover:not(:disabled) {
+  text-decoration: none;
+}
+
+.feedbackButton:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.coachContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.errorMessage {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.instructionsArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.instructions {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.qualityFeedbackArea {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  margin: 1rem 0;
+}
+
+.qualityMessage {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.feedbackSection {
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.sectionTitle {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  font-weight: normal;
+  margin-bottom: 0.75rem;
+  color: black;
+}
+
+.cardsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.conversationSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  overflow: hidden;
+}
+
+.messagesArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1.5;
+}
+
+.teacherMessage {
+  background-color: #f9f9f9;
+  margin-right: 1rem;
+}
+
+.studentMessage {
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+  margin-left: 1rem;
+}
+
+.loadingMessage {
+  padding: 0.75rem;
+  color: #666;
+  font-style: italic;
+  text-align: center;
+}
+
+.inputArea {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+}
+
+.messageInput {
+  flex: 1;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 1px solid black;
+  background-color: transparent;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+}
+
+.messageInput:focus {
+  outline: none;
+  border-bottom: 2px solid black;
+}
+
+.messageInput::placeholder {
+  color: #999;
+}
+
+.messageInput:disabled {
+  color: #ccc;
+  border-bottom-color: #ccc;
+}
