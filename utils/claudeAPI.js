@@ -79,5 +79,32 @@ export const claudeAPI = {
       console.error('Claude API error:', error)
       throw error
     }
+  },
+
+  // Check if a specific issue has been resolved
+  async checkIssueResolution({ issue, currentContent, writingData }) {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'checkIssueResolution',
+          issue,
+          currentContent,
+          writingData
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to check issue resolution')
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Claude API error:', error)
+      throw error
+    }
   }
 }

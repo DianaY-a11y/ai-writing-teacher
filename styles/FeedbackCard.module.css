@@ -35,8 +35,40 @@
   font-size: 0.7rem;
   color: #666;
   text-decoration: underline;
+  /* Reset button styles */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .clickHint:hover {
   text-decoration: none;
+}
+
+/* Resolved issue styling */
+.feedbackCard.resolved {
+  background-color: #f0f8f0;
+  border-color: #4CAF50;
+  opacity: 0.8;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.reviewButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resolvedNote {
+  font-size: 0.7rem;
+  color: #4CAF50;
+  font-style: italic;
+  margin-top: 0.25rem;
 }

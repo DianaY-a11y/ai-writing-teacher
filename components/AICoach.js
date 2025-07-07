@@ -3,7 +3,7 @@ import { claudeAPI } from '../utils/claudeAPI'
 import FeedbackCard from './FeedbackCard'
 import styles from '../styles/AICoach.module.css'
 
-export default function AICoach({ currentStage, writingData }) {
+export default function AICoach({ currentStage, writingData, onFeedbackGenerated }) {
   const [feedbackIssues, setFeedbackIssues] = useState([])
   const [qualityFeedback, setQualityFeedback] = useState(null)
   const [selectedIssue, setSelectedIssue] = useState(null)
@@ -34,8 +34,23 @@ export default function AICoach({ currentStage, writingData }) {
         setQualityFeedback(response.qualityFeedback)
         setFeedbackIssues([])
       } else {
-        setFeedbackIssues(response.issues || [])
+        // Transform string issues to enhanced objects
+        const enhancedIssues = (response.issues || []).map((issue, index) => ({
+          id: `issue-${Date.now()}-${index}`,
+          title: issue,
+          status: 'active', // 'active' | 'checking' | 'resolved' | 'dismissed'
+          originalContent: content,
+          detectedAt: Date.now(),
+          resolvedAt: null,
+          resolutionNote: null
+        }))
+        setFeedbackIssues(enhancedIssues)
         setQualityFeedback(null)
+      }
+
+      // Notify parent that feedback has been generated
+      if (onFeedbackGenerated) {
+        onFeedbackGenerated()
       }
     } catch (err) {
       setError('Failed to generate feedback. Please try again.')
@@ -56,9 +71,42 @@ export default function AICoach({ currentStage, writingData }) {
     }
   }
 
+  // Get current content for specific stage (for resolution checks)
+  const getCurrentContentForStage = (stage, data) => {
+    switch (stage) {
+      case 0: return data.thesis?.trim()
+      case 1: return data.claims?.map(c => c.text).join(', ')
+      case 2: return JSON.stringify(data.evidence || {})
+      case 3: return data.outline?.trim()
+      default: return null
+    }
+  }
+
+  // Handle individual issue resolution
+  const handleIssueResolved = (issueId, resolutionNote, feedback) => {
+    setFeedbackIssues(prev => prev.map(issue =>
+      issue.id === issueId
+        ? {
+            ...issue,
+            status: resolutionNote ? 'resolved' : 'active',
+            resolvedAt: resolutionNote ? Date.now() : null,
+            resolutionNote: resolutionNote,
+            feedback: feedback
+          }
+        : issue
+    ))
+
+    // Show feedback to user
+    if (resolutionNote) {
+      console.log('Issue resolved:', issueId, resolutionNote)
+    } else if (feedback) {
+      console.log('Resolution feedback:', issueId, feedback)
+    }
+  }
+
   // Handle issue card click
   const handleIssueClick = async (issue) => {
-    if (selectedIssue === issue) return // Already selected
+    if (selectedIssue?.id === issue.id) return // Already selected
 
     setSelectedIssue(issue)
     setIsLoading(true)
@@ -67,7 +115,7 @@ export default function AICoach({ currentStage, writingData }) {
     try {
       const content = getCurrentContent()
       const response = await claudeAPI.generateSocraticResponse(
-        issue, 
+        issue.title, 
         JSON.stringify(writingData),
         []
       )
@@ -186,10 +234,13 @@ export default function AICoach({ currentStage, writingData }) {
             <div className={styles.cardsContainer}>
               {feedbackIssues.map((issue, index) => (
                 <FeedbackCard
-                  key={index}
+                  key={issue.id}
                   issue={issue}
                   onClick={handleIssueClick}
-                  isActive={selectedIssue === issue}
+                  isActive={selectedIssue?.id === issue.id}
+                  writingData={writingData}
+                  currentStage={currentStage}
+                  onIssueResolved={handleIssueResolved}
                 />
               ))}
             </div>
@@ -198,7 +249,7 @@ export default function AICoach({ currentStage, writingData }) {
 
         {selectedIssue && (
           <div className={styles.conversationSection}>
-            <h4 className={styles.sectionTitle}>Exploring: {selectedIssue}</h4>
+            <h4 className={styles.sectionTitle}>Exploring: {selectedIssue.title}</h4>
             
             <div className={styles.messagesArea}>
               {conversation.map((message, index) => (

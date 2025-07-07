@@ -69,33 +69,49 @@ ISSUES:
 Only use one format - either QUALITY or ISSUES, not both.`
   },
   3: { // Argument Review
-    system: "You are an expert writing teacher analyzing complete argument structures. Provide constructive feedback appropriate for high school and college level writing.",
-    user: (writingData) => `Analyze this complete argument outline:
+    system: "You are an expert writing instructor specializing in argument analysis and critical thinking. Your role is to evaluate complete argument structures with the rigor of a college-level composition course, focusing on logical coherence, evidence integration, and argumentative sophistication.",
+    user: (writingData) => `Conduct a comprehensive analysis of this argument outline, examining it through multiple critical lenses:
 
-${writingData.outline || 'No outline provided'}
+    **ARGUMENT OUTLINE:**
+    ${writingData.outline || 'No outline provided'}
 
-If the argument structure is coherent and well-developed, respond with:
-QUALITY: [Explanation of why the argument is strong - 2-3 sentences about its logical flow and effectiveness]
+    **EVALUATION CRITERIA:**
+    Assess the argument's structural integrity by examining:
 
-If the argument needs improvement, identify 1-3 key issues and respond with:
-ISSUES:
-1. [First issue title]
-2. [Second issue title]  
-3. [Third issue title]
+    - **Logical Flow & Coherence**: Do claims build logically toward the thesis? Are there gaps in reasoning?
+    - **Evidence Integration**: How effectively does evidence support each claim? Are sources credible and relevant?
+    - **Counter-Argument Engagement**: Does the outline acknowledge and address opposing viewpoints?
+    - **Claim-Evidence Alignment**: Do the supporting details actually prove what the claims assert?
+    - **Argumentative Sophistication**: Does the structure demonstrate nuanced thinking or oversimplification?
+    - **Reader Accessibility**: Would the argument's progression be clear and persuasive to the intended audience?
 
-Only use one format - either QUALITY or ISSUES, not both.`
+    **RESPONSE FORMAT:**
+    If the argument demonstrates strong structural integrity (scoring 8+ out of 10):
+    STRONG ARGUMENT: [2-3 sentences explaining why the logical structure, evidence use, and overall coherence make this an effective argument]
+
+    If the argument has significant structural weaknesses (scoring below 8):
+    STRUCTURAL WEAKNESSES:
+    1. [Primary weakness in logical structure/flow]
+    2. [Evidence or counter-argument issue]  
+    3. [Gap in reasoning or claim development]
+
+    For each weakness, briefly explain why it undermines the argument's effectiveness and suggest the type of revision needed.
+
+    Focus your analysis on the argument's architecture—how well the pieces fit together to create a convincing, logically sound case.`
   }
 }
 
-const SOCRATIC_SYSTEM_PROMPT = `You are a Socratic writing teacher. Your role is to guide students to discover insights about their writing through thoughtful questioning rather than giving direct answers.
+const SOCRATIC_SYSTEM_PROMPT = `You are a Socratic writing teacher. Your role is to guide students to discover insights about their writing through thoughtful questioning and cognitive apprenticeship to provide feedback.
 
 Key principles:
 - Ask probing questions that lead students to self-discovery
-- Avoid giving direct corrections or solutions
+- Only provide direct corrections or solutions after 2-3 questions of questioning with the user.  
 - Challenge assumptions and encourage deeper thinking
 - Be encouraging but intellectually rigorous
 - Keep responses concise (2-3 sentences max)
 - Focus on the specific issue being discussed`
+
+const RESOLUTION_CHECK_SYSTEM_PROMPT = `You are an expert writing teacher checking if a specific writing issue has been resolved. Be precise and encouraging when issues are fixed, constructive when they're not.`
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -167,6 +183,25 @@ Please ask a thoughtful question to help the student examine this issue more dee
         return res.status(200).json({
           response: continueResponse.content[0].text
         })
+
+      case 'checkIssueResolution':
+        const { issue, currentContent, writingData } = req.body
+
+        const resolutionPrompt = createResolutionCheckPrompt(issue, currentContent, writingData)
+
+        const resolutionResponse = await anthropic.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 200,
+          system: RESOLUTION_CHECK_SYSTEM_PROMPT,
+          messages: [{
+            role: 'user',
+            content: resolutionPrompt
+          }]
+        })
+
+        const resolutionResult = parseResolutionResponse(resolutionResponse.content[0].text)
+
+        return res.status(200).json(resolutionResult)
 
       default:
         return res.status(400).json({ error: 'Invalid action' })
@@ -246,4 +281,68 @@ function extractIssuesFromText(text) {
   
   console.log('Extracted issues:', issues)
   return issues.slice(0, 3) // Ensure max 3 issues
+}
+
+// Helper function to create resolution check prompts
+function createResolutionCheckPrompt(issue, currentContent, writingData) {
+  const stageContent = {
+    0: `Original issue: "${issue.title}"
+         Current thesis: "${writingData.thesis}"`,
+    1: `Original issue: "${issue.title}"
+         Current thesis: "${writingData.thesis}"
+         Current claims: ${writingData.claims.map(c => c.text).join(', ')}`,
+    2: `Original issue: "${issue.title}"
+         Current evidence structure: [evidence summary]`,
+    3: `Original issue: "${issue.title}"
+         Current outline: "${writingData.outline}"`
+  }
+
+  // Determine stage based on content type
+  let currentStage = 0
+  if (writingData.claims && writingData.claims.length > 0) currentStage = 1
+  if (writingData.evidence && Object.keys(writingData.evidence).length > 0) currentStage = 2
+  if (writingData.outline) currentStage = 3
+
+  return `${stageContent[currentStage]}
+
+Has the student resolved this specific issue: "${issue.title}"?
+
+If YES, respond with:
+RESOLVED: [Brief explanation of how they fixed it - be encouraging!]
+
+If NO, respond with:
+NOT_RESOLVED: [Specific guidance on what still needs work]
+
+If PARTIALLY, respond with:
+PARTIALLY: [What improved and what still needs work]
+
+Focus only on this specific issue, not other aspects of their writing.`
+}
+
+// Helper function to parse resolution response
+function parseResolutionResponse(text) {
+  if (text.includes('RESOLVED:')) {
+    const explanation = text.match(/RESOLVED:\s*(.+)/s)?.[1]?.trim()
+    return {
+      isResolved: true,
+      status: 'resolved',
+      explanation: explanation || 'Great work fixing this issue!'
+    }
+  }
+
+  if (text.includes('PARTIALLY:')) {
+    const feedback = text.match(/PARTIALLY:\s*(.+)/s)?.[1]?.trim()
+    return {
+      isResolved: false,
+      status: 'partially',
+      feedback: feedback || 'Keep working on this issue.'
+    }
+  }
+
+  const feedback = text.match(/NOT_RESOLVED:\s*(.+)/s)?.[1]?.trim()
+  return {
+    isResolved: false,
+    status: 'not_resolved',
+    feedback: feedback || 'This issue still needs attention.'
+  }
 }

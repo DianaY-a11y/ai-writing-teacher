@@ -8,7 +8,7 @@ const stages = [
   'Argument Review'
 ]
 
-export default function TextEditor({ currentStage, setCurrentStage, writingData, setWritingData }) {
+export default function TextEditor({ currentStage, setCurrentStage, writingData, setWritingData, hasFeedback }) {
   const [wordCount, setWordCount] = useState(0)
 
   const handleThesisChange = (e) => {
@@ -140,7 +140,7 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
         <div className={styles.wordCount}>Words: {wordCount}</div>
         <button 
           onClick={nextStage} 
-          disabled={!writingData.thesis.trim()}
+          disabled={!writingData.thesis.trim() || !hasFeedback}
           className={styles.nextButton}
         >
           Next Stage
@@ -209,7 +209,7 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
       <div className={styles.stageFooter}>
         <button 
           onClick={nextStage} 
-          disabled={!(writingData.claims.length > 0 && writingData.claims.some(c => c.text.trim()))}
+          disabled={!(writingData.claims.length > 0 && writingData.claims.some(c => c.text.trim())) || !hasFeedback}
           className={styles.nextButton}
         >
           Next Stage
@@ -289,7 +289,11 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
       </div>
 
       <div className={styles.stageFooter}>
-        <button onClick={nextStage} className={styles.nextButton}>
+        <button 
+          onClick={nextStage} 
+          disabled={!hasFeedback}
+          className={styles.nextButton}
+        >
           Next Stage
         </button>
       </div>
@@ -333,7 +337,11 @@ ${claim.subclaims.map((subclaim, subIndex) => `
         </div>
 
         <div className={styles.stageFooter}>
-          <button onClick={nextStage} className={styles.nextButton}>
+          <button 
+            onClick={nextStage} 
+            disabled={!hasFeedback}
+            className={styles.nextButton}
+          >
             Generate Paper
           </button>
         </div>
