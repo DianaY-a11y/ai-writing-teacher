@@ -4,6 +4,7 @@ import ProgressTracker from '../components/ProgressTracker'
 import MainLayout from '../components/MainLayout'
 
 export default function Home() {
+  const [showWelcome, setShowWelcome] = useState(true)
   const [currentStage, setCurrentStage] = useState(0)
   const [writingData, setWritingData] = useState({
     thesis: '',
@@ -26,6 +27,43 @@ export default function Home() {
       evidence: {},
       outline: undefined
     })
+  }
+
+  if (showWelcome) {
+    return (
+      <div className="welcome-container">
+        <div className="welcome-content">
+          <h1>AI Writing Tutor</h1>
+          <h2>Here are the 4 steps to writing</h2>
+          
+          <div className="steps-list">
+            <div className="step">
+              <span className="step-title">Argument Construction</span>
+              <span className="step-description">Draft a clear thesis statement that takes a specific position on your topic.</span>
+            </div>
+            <div className="step">
+              <span className="step-title">Claim Development</span>
+              <span className="step-description">Break down your thesis into 2-3 main claims that directly support your position.</span>
+            </div>
+            <div className="step">
+              <span className="step-title">Evidence Integration</span>
+              <span className="step-description">Support each claim with credible evidence such as statistics, expert quotes, or research studies.</span>
+            </div>
+            <div className="step">
+              <span className="step-title">Argument Review</span>
+              <span className="step-description">Review your complete argument structure for logical flow and persuasive strength.</span>
+            </div>
+          </div>
+          
+          <span 
+            onClick={() => setShowWelcome(false)}
+            className="start-writing-link"
+          >
+            Start Writing
+          </span>
+        </div>
+      </div>
+    )
   }
 
   return (

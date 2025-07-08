@@ -159,12 +159,15 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
         {writingData.claims.map((claim, index) => (
           <div key={index} className={styles.claimItem}>
             <div className={styles.inputWithDelete}>
-              <input
-                type="text"
+              <textarea
                 value={claim.text}
                 onChange={(e) => updateClaim(index, e.target.value)}
                 placeholder={`Claim ${index + 1}`}
                 className={styles.claimInput}
+                onInput={(e) => {
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
               />
               <button 
                 onClick={() => deleteClaim(index)}
@@ -176,12 +179,15 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
             
             {claim.subclaims.map((subclaim, subIndex) => (
               <div key={subIndex} className={styles.inputWithDelete}>
-                <input
-                  type="text"
+                <textarea
                   value={subclaim}
                   onChange={(e) => updateSubclaim(index, subIndex, e.target.value)}
                   placeholder={`Subclaim ${subIndex + 1}`}
                   className={styles.subclaimInput}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
                 />
                 <button 
                   onClick={() => deleteSubclaim(index, subIndex)}
@@ -231,12 +237,15 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
             
             {(writingData.evidence[claimIndex] || []).map((evidence, evidenceIndex) => (
               <div key={evidenceIndex} className={styles.inputWithDelete}>
-                <input
-                  type="text"
+                <textarea
                   value={evidence}
                   onChange={(e) => updateEvidence(claimIndex, evidenceIndex, e.target.value)}
                   placeholder={`Evidence ${evidenceIndex + 1}`}
                   className={styles.evidenceInput}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
                 />
                 <button 
                   onClick={() => deleteEvidence(claimIndex, evidenceIndex)}
@@ -260,12 +269,15 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
                 
                 {(writingData.evidence[`${claimIndex}-${subIndex}`] || []).map((evidence, evidenceIndex) => (
                   <div key={evidenceIndex} className={styles.inputWithDelete}>
-                    <input
-                      type="text"
+                    <textarea
                       value={evidence}
                       onChange={(e) => updateEvidence(claimIndex, evidenceIndex, e.target.value, subIndex)}
                       placeholder={`Evidence ${evidenceIndex + 1}`}
                       className={styles.evidenceInput}
+                      onInput={(e) => {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = e.target.scrollHeight + 'px';
+                      }}
                     />
                     <button 
                       onClick={() => deleteEvidence(claimIndex, evidenceIndex, subIndex)}

@@ -51,3 +51,93 @@ body {
   cursor: not-allowed;
   text-decoration: none;
 }
+
+/* Welcome Screen Styles */
+.welcome-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fcfcfc;
+  padding: 2rem;
+}
+
+.welcome-content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.welcome-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.welcome-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #666;
+  font-weight: normal;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.step:last-child {
+  border-bottom: none;
+}
+
+.step-title {
+  font-weight: bold;
+  font-size: 1rem;
+  color: black;
+}
+
+.step-description {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.start-writing-link {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.2rem;
+  color: black;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.start-writing-link:hover {
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .welcome-content h1 {
+    font-size: 2rem;
+  }
+  
+  .welcome-content h2 {
+    font-size: 1.2rem;
+  }
+  
+  .step-title {
+    font-size: 0.95rem;
+  }
+  
+  .step-description {
+    font-size: 0.85rem;
+  }
+}

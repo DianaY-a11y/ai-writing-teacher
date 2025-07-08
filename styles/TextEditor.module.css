@@ -118,6 +118,11 @@
   font-family: 'Times New Roman', Times, serif;
   font-size: 1rem;
   margin-bottom: 0.5rem;
+  resize: none;
+  min-height: 1.5rem;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .claimInput:focus {
@@ -135,6 +140,11 @@
   font-size: 0.9rem;
   margin-left: 1rem;
   margin-bottom: 0.5rem;
+  resize: none;
+  min-height: 1.5rem;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .subclaimInput:focus {
@@ -221,6 +231,11 @@
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   color: #666;
+  resize: none;
+  min-height: 1.5rem;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .evidenceInput:focus {

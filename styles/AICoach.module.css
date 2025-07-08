@@ -105,18 +105,38 @@
 }
 
 .conversationSection {
-  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 1rem 0;
   overflow: hidden;
+  max-height: 400px;
+  min-height: 200px;
 }
 
 .messagesArea {
   flex: 1;
   overflow-y: auto;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.5rem 0.5rem 0;
   margin-bottom: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f9f9f9;
+}
+
+.messagesArea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messagesArea::-webkit-scrollbar-track {
+  background: #f9f9f9;
+}
+
+.messagesArea::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.messagesArea::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 .message {
@@ -148,6 +168,10 @@
   display: flex;
   align-items: center;
   background-color: transparent;
+  flex-shrink: 0;
+  border-top: 1px solid #eee;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .messageInput {
@@ -158,6 +182,12 @@
   background-color: transparent;
   font-family: 'Times New Roman', Times, serif;
   font-size: 1rem;
+  resize: none;
+  min-height: 1.5rem;
+  max-height: 4rem;
+  overflow-y: auto;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .messageInput:focus {

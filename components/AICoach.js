@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { claudeAPI } from '../utils/claudeAPI'
 import FeedbackCard from './FeedbackCard'
 import styles from '../styles/AICoach.module.css'
@@ -11,6 +11,17 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [inputMessage, setInputMessage] = useState('')
+  const messagesEndRef = useRef(null)
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  // Scroll when conversation updates
+  useEffect(() => {
+    scrollToBottom()
+  }, [conversation])
 
   // Generate feedback button handler
   const generateFeedback = async () => {
@@ -280,14 +291,14 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
                 Reviewing...
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           <div className={styles.inputArea}>
-            <input
-              type="text"
+            <textarea
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
               placeholder={
                 selectedIssue 
                   ? "Respond to your teacher..."
@@ -297,6 +308,10 @@ export default function AICoach({ currentStage, writingData, onFeedbackGenerated
               }
               className={styles.messageInput}
               disabled={isLoading}
+              onInput={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 100) + 'px';
+              }}
             />
           </div>
         </div>
