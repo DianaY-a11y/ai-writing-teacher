@@ -101,15 +101,23 @@ Only use one format - either QUALITY or ISSUES, not both.`
   }
 }
 
-const SOCRATIC_SYSTEM_PROMPT = `You are a Socratic writing teacher. Your role is to guide students to discover insights about their writing through thoughtful questioning and cognitive apprenticeship to provide feedback.
+const SOCRATIC_SYSTEM_PROMPT = `You are an expert writing teacher who uses a balanced approach of Socratic questioning and cognitive apprenticeship. Your goal is to help students improve their writing through guided discovery AND practical assistance.
+
+Teaching progression:
+1. Start with 1-2 thoughtful questions to understand the student's thinking
+2. If they engage but struggle, ask 1-2 more guiding questions with hints
+3. After questions, provide concrete examples, models, or direct guidance
+4. Always end with actionable next steps they can take
 
 Key principles:
-- Ask probing questions that lead students to self-discovery
-- Only provide direct corrections or solutions after 2-3 questions of questioning with the user.  
-- Challenge assumptions and encourage deeper thinking
-- Be encouraging but intellectually rigorous
-- Keep responses concise (2-3 sentences max)
-- Focus on the specific issue being discussed`
+- Begin with questions to activate prior knowledge and critical thinking
+- Transition to modeling expert thinking and providing examples
+- Give specific, actionable advice after the questioning phase
+- Be encouraging and show them what good writing looks like
+- Keep responses helpful and substantive (3-5 sentences)
+- Balance discovery with direct instruction
+
+Remember: Great teachers ask questions AND provide answers. Don't leave students stuck with only questions.`
 
 const RESOLUTION_CHECK_SYSTEM_PROMPT = `You are an expert writing teacher checking if a specific writing issue has been resolved. Be precise and encouraging when issues are fixed, constructive when they're not.`
 
@@ -154,19 +162,39 @@ export default async function handler(req, res) {
         return res.status(200).json(result)
 
       case 'socraticResponse':
+        // Count previous exchanges to determine teaching approach
+        const exchangeCount = conversationHistory.filter(msg => msg.role === 'user').length
+        
+        let teachingPrompt = ''
+        if (exchangeCount === 0) {
+          teachingPrompt = `Issue to explore: "${issue}"
+
+Student's text: "${studentText}"
+
+This is the beginning of our conversation. Start with 1-2 thoughtful questions to understand the student's thinking about this problem.`
+        } else if (exchangeCount <= 2) {
+          teachingPrompt = `Issue to explore: "${issue}"
+
+Student's text: "${studentText}"
+
+The student has engaged with your questions. Continue with 1-2 more guiding questions, but include helpful hints or examples to guide them toward a solution.`
+        } else {
+          teachingPrompt = `Issue to explore: "${issue}"
+
+Student's text: "${studentText}"
+
+You've asked several questions. Now provide concrete examples, models, or direct guidance to help them solve this issue. Give them specific, actionable steps they can take.`
+        }
+
         const socraticResponse = await anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 200,
+          max_tokens: 300,
           system: SOCRATIC_SYSTEM_PROMPT,
           messages: [
             ...conversationHistory,
             {
               role: 'user',
-              content: `Issue to explore: "${issue}"
-
-Student's text: "${studentText}"
-
-Please ask a thoughtful question to help the student examine this issue more deeply.`
+              content: teachingPrompt
             }
           ]
         })
@@ -176,10 +204,20 @@ Please ask a thoughtful question to help the student examine this issue more dee
         })
 
       case 'continueSocratic':
+        // Count exchanges to determine if we should provide direct help
+        const continueExchangeCount = conversationHistory.filter(msg => msg.role === 'user').length
+        
+        let updatedSystemPrompt = SOCRATIC_SYSTEM_PROMPT
+        if (continueExchangeCount >= 3) {
+          updatedSystemPrompt += `
+
+The student has engaged with several questions. Focus now on providing concrete examples, models, and direct guidance rather than more questions.`
+        }
+
         const continueResponse = await anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 200,
-          system: SOCRATIC_SYSTEM_PROMPT,
+          max_tokens: 300,
+          system: updatedSystemPrompt,
           messages: [
             ...conversationHistory,
             {
