@@ -393,7 +393,7 @@ ${claim.subclaims.map((subclaim, subIndex) => `
             disabled={!hasFeedback}
             className={styles.nextButton}
           >
-            Generate Paper
+            Write Paper
           </button>
         </div>
       </div>
