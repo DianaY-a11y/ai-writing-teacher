@@ -2,10 +2,14 @@ import { useState } from 'react'
 import Header from '../components/Header'
 import ProgressTracker from '../components/ProgressTracker'
 import MainLayout from '../components/MainLayout'
+import SimpleTextEditor from '../components/SimpleTextEditor'
 
 export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true)
   const [currentStage, setCurrentStage] = useState(0)
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false)
+  const [notesContent, setNotesContent] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
   const [writingData, setWritingData] = useState({
     thesis: '',
     claims: [],
@@ -69,13 +73,29 @@ export default function Home() {
   return (
     <div className="app">
       <Header />
-      <ProgressTracker currentStage={currentStage} />
-      <MainLayout 
-        currentStage={currentStage} 
-        setCurrentStage={setCurrentStage}
-        writingData={writingData}
-        setWritingData={setWritingData}
-      />
+      <div className="main-content">
+        <div className={`main-content-left ${isLeftCollapsed ? 'collapsed' : ''}`}>
+          <button 
+            className="collapse-toggle"
+            onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+          >
+            {isLeftCollapsed ? '→' : '←'}
+          </button>
+          <ProgressTracker currentStage={currentStage} />
+          <MainLayout 
+            currentStage={currentStage} 
+            setCurrentStage={setCurrentStage}
+            writingData={writingData}
+            setWritingData={setWritingData}
+            setNotesContent={setNotesContent}
+            setIsLeftCollapsed={setIsLeftCollapsed}
+            setIsGenerating={setIsGenerating}
+          />
+        </div>
+        <div className="main-text-container">
+          <SimpleTextEditor content={notesContent} setContent={setNotesContent} isGenerating={isGenerating} />
+        </div>
+      </div>
       <footer className="app-footer">
         <div className="footer-left">
           <button 

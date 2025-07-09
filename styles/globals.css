@@ -20,6 +20,58 @@ body {
   padding: 3rem;
 }
 
+.main-content {
+  display: flex;
+  flex: 1;
+  gap: 2rem;
+  position: relative;
+}
+
+.main-content-left {
+  flex: 1;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+.main-content-left.collapsed {
+  flex: 0.5;
+}
+
+.main-text-container {
+  flex: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.main-content-left.collapsed + .main-text-container {
+  flex: 0.5;
+  overflow: visible;
+}
+
+.collapse-toggle {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease-in-out;
+}
+
+.collapse-toggle:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .app-footer {
   display: flex;
   justify-content: flex-start;
