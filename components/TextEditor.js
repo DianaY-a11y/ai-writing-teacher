@@ -8,7 +8,7 @@ const stages = [
   'Argument Review'
 ]
 
-export default function TextEditor({ currentStage, setCurrentStage, writingData, setWritingData, hasFeedback, setNotesContent, setIsLeftCollapsed, setIsGenerating }) {
+export default function TextEditor({ currentStage, setCurrentStage, writingData, setWritingData, hasFeedback }) {
   const [wordCount, setWordCount] = useState(0)
 
   const handleThesisChange = (e) => {
@@ -118,52 +118,13 @@ export default function TextEditor({ currentStage, setCurrentStage, writingData,
     }))
   }
 
-  const nextStage = async () => {
+  const nextStage = () => {
     if (currentStage < stages.length - 1) {
       setCurrentStage(currentStage + 1)
     } else if (currentStage === 3) {
-      // Generate paper using Claude API
-      await generatePaper()
-    }
-  }
-
-  const generatePaper = async () => {
-    // Set loading state and open text editor
-    setIsGenerating(true);
-    setIsLeftCollapsed(true);
-    setNotesContent('Generating your paper');
-    
-    try {
-      const response = await fetch('/api/claude', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          action: 'generatePaper',
-          writingData 
-        }),
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API error response:', errorData);
-        throw new Error(errorData.error || 'Failed to generate paper')
-      }
-
-      const data = await response.json()
-      
-      // Set the generated paper in the notes
-      setNotesContent(data.content)
-      
-      // Turn off loading state
-      setIsGenerating(false)
-      
-    } catch (error) {
-      console.error('Error generating paper:', error)
-      setIsGenerating(false)
-      setNotesContent('')
-      alert(`Failed to generate paper: ${error.message}`)
+      // Handle "Generate Paper" action from Argument Review stage
+      console.log('Generate Paper clicked - ready to generate essay')
+      // This is where you could integrate with Claude API to generate the full paper
     }
   }
 

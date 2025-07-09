@@ -3,7 +3,7 @@ import AICoach from './AICoach'
 import TextEditor from './TextEditor'
 import styles from '../styles/MainLayout.module.css'
 
-export default function MainLayout({ currentStage, setCurrentStage, writingData, setWritingData, setNotesContent, setIsLeftCollapsed, setIsGenerating }) {
+export default function MainLayout({ currentStage, setCurrentStage, writingData, setWritingData }) {
   const [hasFeedback, setHasFeedback] = useState(false)
 
   // Reset feedback state when stage changes
@@ -28,9 +28,6 @@ export default function MainLayout({ currentStage, setCurrentStage, writingData,
           writingData={writingData}
           setWritingData={setWritingData}
           hasFeedback={hasFeedback}
-          setNotesContent={setNotesContent}
-          setIsLeftCollapsed={setIsLeftCollapsed}
-          setIsGenerating={setIsGenerating}
         />
       </div>
     </div>

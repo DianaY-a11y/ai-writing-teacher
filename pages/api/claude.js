@@ -232,7 +232,7 @@ The student has engaged with several questions. Focus now on providing concrete 
         })
 
       case 'checkIssueResolution':
-        const { issue, currentContent } = req.body
+        const { issue, currentContent, writingData } = req.body
 
         const resolutionPrompt = createResolutionCheckPrompt(issue, currentContent, writingData)
 
@@ -275,88 +275,6 @@ The student has engaged with several questions. Focus now on providing concrete 
           response: generalResponse.content[0].text
         })
 
-      case 'generatePaper':        
-        const paperPrompt = `Transform the provided writingData into a comprehensive paragraph-by-paragraph writing blueprint that integrates the existing content into a structured analytical paper format.
-
-Instructions:
-Create a detailed writing outline that incorporates the existing thesis, claims, subclaims, and evidence. Use the actual content directly where indicated, and include analytical sections for the required components.
-
-Writing Data:
-Thesis: ${writingData.thesis}
-
-Claims and Evidence:
-${writingData.claims.map((claim, claimIndex) => {
-  let result = `Claim ${claimIndex + 1}: ${claim.text}\n`;
-  
-  if (claim.subclaims) {
-    result += claim.subclaims.map((subclaim, subIndex) => `  Subclaim ${subIndex + 1}: ${subclaim.text}`).join('\n') + '\n';
-  }
-  
-  const evidence = writingData.evidence[claimIndex] || [];
-  if (evidence.length > 0) {
-    result += `Evidence: ${evidence.map(ev => `\n  - ${ev}`).join('')}\n`;
-  }
-  
-  if (claim.subclaims) {
-    const subclaimEvidence = claim.subclaims.map((subclaim, subIndex) => {
-      const evidenceKey = `${claimIndex}-${subIndex}`;
-      return writingData.evidence[evidenceKey] ? 
-        `  Subclaim ${subIndex + 1} Evidence: ${writingData.evidence[evidenceKey]}` : '';
-    }).filter(Boolean).join('\n');
-    
-    if (subclaimEvidence) {
-      result += subclaimEvidence + '\n';
-    }
-  }
-  
-  return result;
-}).join('\n')}
-
-Output Format:
-
-
-Introduction Paragraph
-[Hook: Compelling statistic, thought-provoking question, relevant anecdote, or surprising contradiction that introduces the topic] [Context: Background information establishing the significance of this issue and necessary context for understanding the argument] [Problem Setup: The specific problem, debate, or tension the paper addresses] ${writingData.thesis} [Roadmap: Preview of analytical strategy and main arguments]
-
----
-
-${writingData.claims.map((claim, claimIndex) => `
-Body Paragraph ${claimIndex + 1}
-
-${claim.text} [Claim Elaboration: Explanation of what this claim means, key term definitions, and why this claim matters to the larger argument] [Claim Qualification: Acknowledgment of limitations or scope of this claim, if applicable] ${claim.subclaims ? claim.subclaims.map((subclaim, subIndex) => {
-  const evidenceKey = `${claimIndex}-${subIndex}`;
-  const evidence = writingData.evidence[evidenceKey];
-  
-  if (evidence) {
-    return `${subclaim.text} [Subclaim Development: Explanation of how this subclaim supports the main claim and its importance] ${evidence} [Evidence Analysis: What this evidence demonstrates specifically and how it proves this subclaim] [Evidence Significance: Why this evidence is compelling and what it reveals about the larger argument]`;
-  } else {
-    return `${subclaim.text} [Subclaim Development: Explanation of how this subclaim supports the main claim and its importance] [Evidence Needed: Relevant evidence to support this subclaim]`;
-  }
-}).join(' ') : ''} ${(writingData.evidence[claimIndex] || []).map((ev, i) => `${ev} [Evidence Setup: Why this evidence is relevant and how it connects to the claim] [Evidence Analysis: What this evidence means, how it's interpreted, and what it proves about the claim] [Evidence Significance: Why this evidence is compelling and how it advances the argument]`).join(' ')} [Counterargument: Potential objections to this claim and why the presented interpretation is stronger] [Synthesis: Broader implications of the analysis for the thesis] [Transition: Connection of this argument to the next major claim${writingData.claims[claimIndex + 1] ? `: "${writingData.claims[claimIndex + 1].text}"` : ' or conclusion'}]
-
----
-`).join('\n')}
-
- Conclusion Paragraph
-
-[Synthesis Opening: Sophisticated restatement showing how the ${writingData.claims.length} main arguments work together to prove the thesis] [Argument Culmination: How the analysis resolves the initial problem or tension established] [Broader Significance: What the argument means for ongoing debates, policy implications, or larger questions in this field] [Future Directions: Productive avenues for further research, unresolved questions, or practical applications]
-
------
-Generate this detailed outline structure using the specific content provided.`
-
-        const paperResponse = await anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 4000,
-          messages: [{
-            role: 'user',
-            content: paperPrompt
-          }]
-        })
-        
-        const paperContent = paperResponse.content[0].text
-        
-        return res.status(200).json({ content: paperContent })
-
       default:
         return res.status(400).json({ error: 'Invalid action' })
     }
@@ -375,10 +293,13 @@ Generate this detailed outline structure using the specific content provided.`
 }
 
 // Helper function to parse Claude response for either quality feedback or issues
-function parseFeedbackResponse(text) {  
+function parseFeedbackResponse(text) {
+  console.log('Raw Claude response:', text) // Debug logging
+  
   // Check if response contains quality feedback
   const qualityMatch = text.match(/QUALITY:\s*(.+?)(?:\n|$)/s)
   if (qualityMatch) {
+    console.log('Quality feedback detected')
     return {
       type: 'quality',
       qualityFeedback: qualityMatch[1].trim(),
@@ -389,6 +310,7 @@ function parseFeedbackResponse(text) {
   // Check if response contains issues
   const issuesMatch = text.match(/ISSUES:\s*([\s\S]*)/i)
   if (issuesMatch) {
+    console.log('Issues detected')
     const issuesText = issuesMatch[1]
     const issues = extractIssuesFromText(issuesText)
     return {
@@ -399,6 +321,7 @@ function parseFeedbackResponse(text) {
   }
   
   // Fallback: treat as issues format for backward compatibility
+  console.log('Using fallback issue extraction')
   const issues = extractIssuesFromText(text)
   return {
     type: issues.length > 0 ? 'issues' : 'quality',
@@ -427,7 +350,9 @@ function extractIssuesFromText(text) {
       continue
     }
   }
-    return issues.slice(0, 3) // Ensure max 3 issues
+  
+  console.log('Extracted issues:', issues)
+  return issues.slice(0, 3) // Ensure max 3 issues
 }
 
 // Helper function to create resolution check prompts
